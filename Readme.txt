@@ -6,6 +6,8 @@ Car parts:
 - Arduino
 - nf24l01 module for radio frequency remote control
 - servo motor for car steering
+- regular ESC 40A for DC motors
+- DC motor 550
 - oled screen 0.96
 
 Remote control parts:
