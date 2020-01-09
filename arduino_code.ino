@@ -14,12 +14,12 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Servo.h>
 Servo myservo;
+Servo trottle;
 /*-----( Declare Constants and Pin Numbers )-----*/
 #define CE_PIN 8
 #define CSN_PIN 7
@@ -53,20 +53,7 @@ static const unsigned char PROGMEM logo_bmp[] =
   B00000000, B00110000 };
 //NOTE: the "LL" at the end of the constant is "LongLong" type
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
-/*
-It's connected to the rest of the digital pins: D10, D11, D12 and D13. 
-The two PWM pins connect to the enable functions for the two motors, 
-and act as speed controls via the PWM duty cycle, D10 for Motor A, 
-and D11 for Motor B. The corresponding GPIO - D12 for Motor A and D13 for motor B - 
-are connected to each motors two input controls, once directly and once through 
-an inverter, and thus act as direction controls: the motor spins one direction 
-when it's high, the other when it's low, and stops - by coasting - 
-when the speed is zero.
-*/
-int right_motor_PWM=10;          // PWM Motor A
-int left_motor_PWM=11;          // PWM Motor B
-int right_motor_direction=12;          // Motor A  
-int left_motor_direction=13;          // Motor B
+
 /*-----( Declare objects )-----*/
 RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
 /*-----( Declare Variables )-----*/
@@ -80,22 +67,18 @@ int buttonRight;
 int buttonDown;
 int buttonLeft;
 int servo_angle;
-int set_speed = 140;
+int set_speed = 0;
 
 void setup()
 {
-  pinMode(right_motor_PWM, OUTPUT);
-  pinMode(left_motor_PWM, OUTPUT);
-  pinMode(right_motor_direction, OUTPUT);
-  pinMode(left_motor_direction, OUTPUT);
   Serial.begin(9600);
   //Serial.println("Nrf24L01 Receiver Starting");
   myservo.attach(9);
+  trottle.attach(10);
   radio.begin();
   radio.setPALevel(RF24_PA_MIN);
   radio.openReadingPipe(1,pipe);
   radio.startListening();
-
 
  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
@@ -124,7 +107,7 @@ void setup()
   // delay(1000);
   display.invertDisplay(false);
   delay(1000);
-  
+
 }
 
 void loop()
@@ -157,27 +140,24 @@ void loop()
       }
  
 // Y-axis used for forward and backward control  
- if (yAxis < 500 || buttonUp==0) {
+ if (yAxis < 450 || buttonUp==0) {
     // Motors backward
     // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed 
     
-    if (yAxis < 500)
-    {speed  = map(yAxis, 500, 0, 30, 220);}
+    if (yAxis < 450)
+    {speed  = map(yAxis, 450, 0, 89, 50);}
     else
     {speed=0;}
 
     if (buttonUp==0)
-    {speedb=set_speed-30;}
+    {speedb=90-set_speed;}
     else
     {speedb=0;}
     /*
     Serial.print(" Speed reverse = ");  
     Serial.println(speed+speedb);
     */
-    digitalWrite(right_motor_direction,LOW);
-    analogWrite(right_motor_PWM, speed+speedb); 
-    digitalWrite(left_motor_direction, LOW);
-    analogWrite(left_motor_PWM, speed+speedb);
+  trottle.write(speed+speedb); // set car speed
 
     display.clearDisplay();
     display.setTextSize(1);             // Normal 1:1 pixel scale
@@ -196,33 +176,31 @@ void loop()
   
   display.display();
 
+
   servo_angle = map(xAxis, 0, 1023, 105, 70);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
   
   }
-else if (yAxis > 510 || buttonDown==0) {
+else if (yAxis > 560 || buttonDown==0) {
     // Motors forward
     // Convert the increasing Y-axis readings for going forward from 550 to 1023 into 0 to 255 value for the PWM signal for increasing the motor speed
     //  speed  = map(yAxis, 510, 1023, 30, 220);
     
-    if (yAxis > 510)
-    {speed  = map(yAxis, 510, 1023, 30, 220);}
+    if (yAxis > 560)
+    {speed  = map(yAxis, 560, 1023, 90, 120);}
     else
     {speed=0;}
         
     if (buttonDown==0)
-    {speedb=set_speed+30;}
+    {speedb=90+set_speed;}
     else
     {speedb=0;}
     /*
     Serial.print(" Speed forward = ");  
     Serial.println(speed+speedb);
     */  
-    digitalWrite(right_motor_direction,HIGH);
-    analogWrite(right_motor_PWM, speed+speedb); 
-    digitalWrite(left_motor_direction, HIGH);
-    analogWrite(left_motor_PWM, speed+speedb);
+  trottle.write(speed+speedb); // set car speed
 
   display.clearDisplay();
 
@@ -255,11 +233,8 @@ else if (yAxis > 510 || buttonDown==0) {
     Serial.print(" Speed zero = ");  
     Serial.println(speed+speedb);
     */
-    digitalWrite(right_motor_direction,LOW);
-    analogWrite(right_motor_PWM, speed);
-    digitalWrite(left_motor_direction, LOW);
-    analogWrite(left_motor_PWM, speed);
-
+	
+  trottle.write(speed+speedb); // set car speed
 
   display.clearDisplay();
 
