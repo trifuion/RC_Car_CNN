@@ -58,7 +58,7 @@ const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
 RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
 /*-----( Declare Variables )-----*/
 int joystick[8];  // 6 element array holding Joystick readings
-int speed = 0;
+int speed = 90;
 int speedb = 0;
 int  xAxis, yAxis;
 // the four button variables from joystick
@@ -130,12 +130,12 @@ void loop()
 //Adjust fixed speed for buttons up/down
       if (E_BTN==0)
       {
-      set_speed = set_speed+5;
+      set_speed = set_speed+1;
    
       }
       else if (F_BTN==0)
       {
-      set_speed = set_speed-5;
+      set_speed = set_speed-1;
   
       }
  
@@ -145,18 +145,19 @@ void loop()
     // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed 
     
     if (yAxis < 450)
-    {speed  = map(yAxis, 450, 0, 89, 50);}
+    {speed  = map(yAxis, 450, 0, 82, 76);}
     else
-    {speed=0;}
+    {speed=82;}
 
     if (buttonUp==0)
-    {speedb=90-set_speed;}
+    {speedb=-set_speed;}
     else
     {speedb=0;}
-    /*
+
     Serial.print(" Speed reverse = ");  
-    Serial.println(speed+speedb);
-    */
+    Serial.print(speed-speedb);
+    Serial.print("    ");  
+    
   trottle.write(speed+speedb); // set car speed
 
     display.clearDisplay();
@@ -171,16 +172,16 @@ void loop()
   display.setTextSize(1);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.print(F("set Speed: ")); display.println(set_speed);
-  display.print(F("Speed bw: ")); display.println(speed+speedb);
+  display.print(F("Speed bw: ")); display.println(speed-speedb);
   display.print(F("servo angle: ")); display.println(servo_angle);
   
   display.display();
 
 
-  servo_angle = map(xAxis, 0, 1023, 105, 70);
+  servo_angle = map(xAxis, 0, 1023, 110, 70);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
-  
+
   }
 else if (yAxis > 560 || buttonDown==0) {
     // Motors forward
@@ -188,18 +189,19 @@ else if (yAxis > 560 || buttonDown==0) {
     //  speed  = map(yAxis, 510, 1023, 30, 220);
     
     if (yAxis > 560)
-    {speed  = map(yAxis, 560, 1023, 90, 120);}
+    {speed  = map(yAxis, 560, 1023, 100, 103);}
     else
-    {speed=0;}
+    {speed=100;}
         
     if (buttonDown==0)
-    {speedb=90+set_speed;}
+    {speedb=set_speed;}
     else
     {speedb=0;}
-    /*
+   
     Serial.print(" Speed forward = ");  
-    Serial.println(speed+speedb);
-    */  
+    Serial.print(speed+speedb);
+    Serial.print("    ");   
+    
   trottle.write(speed+speedb); // set car speed
 
   display.clearDisplay();
@@ -219,8 +221,8 @@ else if (yAxis > 560 || buttonDown==0) {
   display.print(F("servo angle: ")); display.println(servo_angle);
   display.display();
 
-      
-  servo_angle = map(xAxis, 0, 1023, 105, 70);
+ 
+  servo_angle = map(xAxis, 0, 1023, 110, 70);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
 
@@ -228,13 +230,13 @@ else if (yAxis > 560 || buttonDown==0) {
   // If joystick stays in middle the motors are not moving
   else {
     
-    speed  = 0;
-    /*
+
+    speed=90;
     Serial.print(" Speed zero = ");  
-    Serial.println(speed+speedb);
-    */
+    Serial.print(speed);
+    Serial.print("    ");  
 	
-  trottle.write(speed+speedb); // set car speed
+  trottle.write(speed); // set car speed
 
   display.clearDisplay();
 
@@ -252,13 +254,14 @@ else if (yAxis > 560 || buttonDown==0) {
   display.print(F("Speed stop: ")); display.println(speed);
   display.print(F("servo angle: ")); display.println(servo_angle);
   display.display();
-  
-  servo_angle = map(xAxis, 0, 1023, 105, 70);
+
+
+  servo_angle = map(xAxis, 0, 1023, 110, 70);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
 
-  }
-    
+
+  }  
    /*
    // X-axis used for left and right control
    // Convert the declining X-axis readings from 0 to 1023 into increasing 0 to 255 value
@@ -268,7 +271,30 @@ else if (yAxis > 560 || buttonDown==0) {
    Serial.println(servo_angle);
    */
   }
+  /*
+  if(!radio.available())
+    {
+    speed=90;
+    Serial.print(" Speed zero = ");  
+    Serial.print(speed);
+    Serial.print("    ");
+    Serial.print("!!! Signal lost !!! ");    
+ 
+    trottle.write(speed); // set car spee
+    }
+    */
+/*
+    else
+  {
+    speed=90;
+    Serial.print(" Speed zero = ");  
+    Serial.print(speed);
+    Serial.print("    ");
+    Serial.print("!!! Signal lost !!! ");    
   
+    trottle.write(speed); // set car speed  
+  }
+  */
       /*
       Serial.print(" Servo = ");  
       Serial.println(servo_angle);
