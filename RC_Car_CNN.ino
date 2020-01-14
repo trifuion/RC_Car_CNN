@@ -153,11 +153,11 @@ void loop()
     {speedb=-set_speed;}
     else
     {speedb=0;}
-
+/*
     Serial.print(" Speed reverse = ");  
     Serial.print(speed-speedb);
     Serial.print("    ");  
-    
+*/    
   trottle.write(speed+speedb); // set car speed
 
     display.clearDisplay();
@@ -178,7 +178,7 @@ void loop()
   display.display();
 
 
-  servo_angle = map(xAxis, 0, 1023, 110, 70);
+  servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
 
@@ -197,11 +197,11 @@ else if (yAxis > 560 || buttonDown==0) {
     {speedb=set_speed;}
     else
     {speedb=0;}
-   
+/*   
     Serial.print(" Speed forward = ");  
     Serial.print(speed+speedb);
     Serial.print("    ");   
-    
+*/   
   trottle.write(speed+speedb); // set car speed
 
   display.clearDisplay();
@@ -222,7 +222,7 @@ else if (yAxis > 560 || buttonDown==0) {
   display.display();
 
  
-  servo_angle = map(xAxis, 0, 1023, 110, 70);
+  servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
 
@@ -232,10 +232,11 @@ else if (yAxis > 560 || buttonDown==0) {
     
 
     speed=90;
+/*    
     Serial.print(" Speed zero = ");  
     Serial.print(speed);
     Serial.print("    ");  
-	
+*/	
   trottle.write(speed); // set car speed
 
   display.clearDisplay();
@@ -256,7 +257,7 @@ else if (yAxis > 560 || buttonDown==0) {
   display.display();
 
 
-  servo_angle = map(xAxis, 0, 1023, 110, 70);
+  servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
   Serial.println(servo_angle);
 
