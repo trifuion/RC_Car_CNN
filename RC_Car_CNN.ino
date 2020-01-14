@@ -112,7 +112,7 @@ void setup()
 
 void loop()
 {
-  if ( radio.available() )
+  if (radio.available())
   {
       radio.read( joystick, sizeof(joystick) );
       xAxis = joystick[0];
@@ -272,17 +272,17 @@ else if (yAxis > 560 || buttonDown==0) {
    */
   }
   /*
-  if(!radio.available())
-    {
+else if(!radio.available())
+   {
     speed=90;
     Serial.print(" Speed zero = ");  
     Serial.print(speed);
     Serial.print("    ");
-    Serial.print("!!! Signal lost !!! ");    
+    Serial.println("!!! Signal lost !!! ");    
  
-    trottle.write(speed); // set car spee
-    }
-    */
+    trottle.write(speed); // set car speed
+    }  
+*/
 /*
     else
   {
@@ -313,4 +313,4 @@ else if (yAxis > 560 || buttonDown==0) {
       Serial.print(" Left = ");  
       Serial.println(joystick[5]);
       */
-}  
+}
