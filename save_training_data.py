@@ -6,7 +6,7 @@ import os
 
 #import serial library and initilising the serial conection with Arduino (for example port: ttyACM0), this port need to be changed according to port where Arduino is connected
 import serial
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
 
 
 
@@ -55,14 +55,13 @@ video_type = cv2.VideoWriter_fourcc(*'XVID')
 
 #video write function, set output video name fps, resolution (resolution is set by int(cap.get(3)), int(cap.get(4))) that is the same as video imput resolution, if you a different resolution the video will not be exported)
 out = cv2.VideoWriter("video_%d.avi" %random_number, video_type, 20.0, (int(cap.get(3)), int(cap.get(4))))
-#out = cv2.VideoWriter("%s_end_to_end.avi" %video_file, video_type, 20.0, (320, 240))
-#out = cv2.VideoWriter("%s_%d.avi" %(video_file, random_number), video_type, 20.0, (int(cap.get(3)), int(cap.get(4))))
-#out = cv2.VideoWriter("to_end.avi", video_type, 20.0, (320, 240))
+
 try:
     i = 0
     while cap.isOpened():
+        
         _, frame = cap.read()
-
+        frame = cv2.flip( frame, 0 )
         arduino_serial=ser.readline().decode('ascii')
         angle=int(arduino_serial)
         print(angle)
