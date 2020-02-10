@@ -343,7 +343,7 @@ def test_video(video_file):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    test_video('/media/pi/Storage/AI/DeepPiCar/models/lane_navigation/data/images/video01')
-    #test_photo('/home/pi/DeepPiCar/driver/data/video/car_video_190427_110320_073.png')
+    #test_video('/media/pi/Storage/AI/RC_Car_CNN/training_video/538/video_358')
+    test_photo('/media/pi/Storage/AI/RC_Car_CNN/training_video/538/video538_625_100.png')
     #test_photo(sys.argv[1])
     #test_video(sys.argv[1])

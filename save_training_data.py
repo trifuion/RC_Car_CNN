@@ -4,9 +4,9 @@ import sys
 import random
 import os
 
-#import serial library and initilising the serial conection with Arduino (for example port: ttyACM0), this port need to be changed according to port where Arduino is connected
+#import serial library and inilising the serial conection with Arduino (for example port: ttyACM0), this port need to be changed according to port where Arduino is connected
 import serial
-ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 
 
 
