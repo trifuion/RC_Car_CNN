@@ -68,6 +68,7 @@ int buttonDown;
 int buttonLeft;
 int servo_angle;
 int set_speed = 0;
+int autonomous =1;
 
 void setup()
 {
@@ -138,7 +139,20 @@ void loop()
       set_speed = set_speed-1;
   
       }
- 
+
+
+
+ if (buttonRight==0 & buttonLeft==0)
+
+ {
+  autonomous = autonomous*(-1);
+  delay(200);
+ }
+
+
+
+if  (autonomous == -1)
+ {
 // Y-axis used for forward and backward control  
  if (yAxis < 450 || buttonUp==0) {
     // Motors backward
@@ -171,6 +185,8 @@ void loop()
 
   display.setTextSize(1);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
+  display.println(F("TRAINING MODE"));
+  display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed bw: ")); display.println(speed-speedb);
   display.print(F("servo angle: ")); display.println(servo_angle);
@@ -180,7 +196,7 @@ void loop()
 
   servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
-  Serial.println(servo_angle);
+  Serial.write(servo_angle);
 
   }
 else if (yAxis > 560 || buttonDown==0) {
@@ -216,6 +232,8 @@ else if (yAxis > 560 || buttonDown==0) {
 
   display.setTextSize(1);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
+  display.println(F("TRAINING MODE"));
+  display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed fw: ")); display.println(speed+speedb);
   display.print(F("servo angle: ")); display.println(servo_angle);
@@ -251,6 +269,8 @@ else if (yAxis > 560 || buttonDown==0) {
 
   display.setTextSize(1);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
+  display.println(F("TRAINING MODE"));
+  display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed stop: ")); display.println(speed);
   display.print(F("servo angle: ")); display.println(servo_angle);
@@ -262,7 +282,140 @@ else if (yAxis > 560 || buttonDown==0) {
   Serial.println(servo_angle);
 
 
+  }
   }  
+
+  else if (autonomous == 1)
+ {
+// Y-axis used for forward and backward control  
+ if (yAxis < 450 || buttonUp==0) {
+    // Motors backward
+    // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed 
+    
+    if (yAxis < 450)
+    {speed  = map(yAxis, 450, 0, 82, 76);}
+    else
+    {speed=82;}
+
+    if (buttonUp==0)
+    {speedb=-set_speed;}
+    else
+    {speedb=0;}
+/*
+    Serial.print(" Speed reverse = ");  
+    Serial.print(speed-speedb);
+    Serial.print("    ");  
+*/    
+  trottle.write(speed+speedb); // set car speed
+
+    display.clearDisplay();
+    display.setTextSize(1);             // Normal 1:1 pixel scale
+    display.setTextColor(SSD1306_WHITE);        // Draw white text
+    display.setCursor(0,0);             // Start at top-left corner
+  
+  // display.println(F("Speed"));
+  // display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
+  // display.println(3.141592);
+
+  display.setTextSize(1);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.println(F("AUTONOMOUS MODE"));
+  display.println();
+  display.print(F("set Speed: ")); display.println(set_speed);
+  display.print(F("Speed bw: ")); display.println(speed-speedb);
+  display.print(F("servo angle: ")); display.println(servo_angle);
+  
+  display.display();
+
+
+  servo_angle =   Serial.read();
+  myservo.write(servo_angle);
+
+
+  }
+else if (yAxis > 560 || buttonDown==0) {
+    // Motors forward
+    // Convert the increasing Y-axis readings for going forward from 550 to 1023 into 0 to 255 value for the PWM signal for increasing the motor speed
+    //  speed  = map(yAxis, 510, 1023, 30, 220);
+    
+    if (yAxis > 560)
+    {speed  = map(yAxis, 560, 1023, 100, 103);}
+    else
+    {speed=100;}
+        
+    if (buttonDown==0)
+    {speedb=set_speed;}
+    else
+    {speedb=0;}
+/*   
+    Serial.print(" Speed forward = ");  
+    Serial.print(speed+speedb);
+    Serial.print("    ");   
+*/   
+  trottle.write(speed+speedb); // set car speed
+
+  display.clearDisplay();
+
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+  
+  //  display.println(F("Speed"));
+  // display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
+  // display.println(3.141592);
+
+  display.setTextSize(1);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.println(F("AUTONOMOUS MODE"));
+  display.println();
+  display.print(F("set Speed: ")); display.println(set_speed);
+  display.print(F("Speed fw: ")); display.println(speed+speedb);
+  display.print(F("servo angle: ")); display.println(servo_angle);
+  display.display();
+
+ 
+  servo_angle = map(xAxis, 0, 1023, 120, 60);
+  myservo.write(servo_angle); 
+  Serial.println(servo_angle);
+
+  }
+  // If joystick stays in middle the motors are not moving
+  else {
+    
+
+    speed=90;
+/*    
+    Serial.print(" Speed zero = ");  
+    Serial.print(speed);
+    Serial.print("    ");  
+*/ 
+  trottle.write(speed); // set car speed
+
+  display.clearDisplay();
+
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+  
+  //  display.println(F("Speed"));
+  // display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
+  // display.println(3.141592);
+
+  display.setTextSize(1);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.println(F("AUTONOMOUS MODE"));
+  display.println();
+  display.print(F("set Speed: ")); display.println(set_speed);
+  display.print(F("Speed stop: ")); display.println(speed);
+  display.print(F("servo angle: ")); display.println(servo_angle);
+  display.display();
+
+
+  servo_angle = map(xAxis, 0, 1023, 120, 60);
+  myservo.write(servo_angle); 
+  Serial.println(servo_angle);
+ }
+   }
    /*
    // X-axis used for left and right control
    // Convert the declining X-axis readings from 0 to 1023 into increasing 0 to 255 value
@@ -272,6 +425,8 @@ else if (yAxis > 560 || buttonDown==0) {
    Serial.println(servo_angle);
    */
   }
+
+  
   /*
 else if(!radio.available())
    {
@@ -296,9 +451,8 @@ else if(!radio.available())
     trottle.write(speed); // set car speed  
   }
   */
-      /*
-      Serial.print(" Servo = ");  
-      Serial.println(servo_angle);
+
+
       Serial.print(" X = ");
       Serial.print(xAxis);
       Serial.print(" Y = ");  
@@ -311,7 +465,9 @@ else if(!radio.available())
       Serial.print(joystick[3]);
       Serial.print(" Down = ");
       Serial.print(joystick[4]);
-      Serial.print(" Left = ");  
-      Serial.println(joystick[5]);
-      */
+      Serial.print(" Left = ");
+      Serial.print(joystick[5]);
+      Serial.print(" Autonomous = ");
+      Serial.println(autonomous);  
+
 }

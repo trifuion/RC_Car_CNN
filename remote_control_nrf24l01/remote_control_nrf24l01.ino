@@ -46,6 +46,7 @@ int buttonDown  = 4;
 int buttonLeft  = 5;
 int const E_BTN = 6;
 int const F_BTN = 7;
+//int K_BTN = 8;
 
 
 void setup() {
@@ -62,6 +63,7 @@ void setup() {
   pinMode(buttonLeft,INPUT_PULLUP);
   pinMode(E_BTN,INPUT_PULLUP);
   pinMode(E_BTN,INPUT_PULLUP);
+  //pinMode(K_BTN,INPUT_PULLUP);
   
   digitalWrite(buttonUp,LOW);
   digitalWrite(buttonRight,LOW);
@@ -69,6 +71,7 @@ void setup() {
   digitalWrite(buttonLeft,LOW);
   digitalWrite(E_BTN,LOW);
   digitalWrite(F_BTN,LOW);
+  //digitalWrite(K_BTN,LOW);
 
 }
 
@@ -82,6 +85,7 @@ void loop() {
   joystick[5] = digitalRead(buttonLeft);
   joystick[6] = digitalRead(E_BTN);
   joystick[7] = digitalRead(F_BTN);
+  //joystick[8] = digitalRead(K_BTN);
   
   radio.write( joystick, sizeof(joystick) );
   delay(20);
@@ -102,5 +106,7 @@ void loop() {
       Serial.print(digitalRead(E_BTN));
       Serial.print(" F_BTN = "); 
       Serial.println(digitalRead(F_BTN));
+      //Serial.print(" K_BTN = "); 
+      //Serial.println(digitalRead(K_BTN));
       
 }

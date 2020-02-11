@@ -1,3 +1,4 @@
+import sys
 import cv2
 import numpy as np
 import logging
@@ -5,14 +6,29 @@ import math
 from keras.models import load_model
 from hand_coded_lane_follower import HandCodedLaneFollower
 
-_SHOW_IMAGE = False
+import time
+import serial
 
+ser = serial.Serial(
+              
+               port='/dev/ttyACM0',
+               baudrate = 9600,
+               parity=serial.PARITY_NONE,
+               stopbits=serial.STOPBITS_ONE,
+               bytesize=serial.EIGHTBITS,
+               timeout=1
+           )
+
+_SHOW_IMAGE = True
+
+
+#cap = cv2.VideoCapture(0)
 
 class EndToEndLaneFollower(object):
 
     def __init__(self,
                  car=None,
-                 model_path='/media/pi/Storage/AI/DeepPiCar/models/lane_navigation/data/model_result/lane_navigation_final.h5'):
+                 model_path='lane_navigation_final.h5'):
         logging.info('Creating a EndToEndLaneFollower...')
 
         self.car = car
@@ -21,7 +37,7 @@ class EndToEndLaneFollower(object):
 
     def follow_lane(self, frame):
         # Main entry point of the lane follower
-        show_image("orig", frame)
+        #show_image("orig", frame)
 
         self.curr_steering_angle = self.compute_steering_angle(frame)
         logging.debug("curr_steering_angle = %d" % self.curr_steering_angle)
@@ -42,6 +58,7 @@ class EndToEndLaneFollower(object):
 
         logging.debug('new steering angle: %s' % steering_angle)
         return int(steering_angle + 0.5) # round the nearest integer
+        ser.write('Write counter: %d \n'%(steering_angle + 0.5))
 
 
 def img_preprocess(image):
@@ -98,7 +115,8 @@ def test_photo(file):
 def test_video(video_file):
     end_to_end_lane_follower = EndToEndLaneFollower()
     hand_coded_lane_follower = HandCodedLaneFollower()
-    cap = cv2.VideoCapture(video_file + '.avi')
+    #cap = cv2.VideoCapture(video_file + '.avi')
+    cap = cv2.VideoCapture(0)
 
     # skip first second of video.
     for i in range(3):
@@ -106,22 +124,27 @@ def test_video(video_file):
 
     video_type = cv2.VideoWriter_fourcc(*'XVID')
     video_overlay = cv2.VideoWriter("%s_end_to_end.avi" % video_file, video_type, 20.0, (320, 240))
+
+ 
+    
     try:
         i = 0
         while cap.isOpened():
             _, frame = cap.read()
+            frame = cv2.flip( frame, 0 )
             frame_copy = frame.copy()
             logging.info('Frame %s' % i)
-            combo_image1 = hand_coded_lane_follower.follow_lane(frame)
+            #combo_image1 = hand_coded_lane_follower.follow_lane(frame)
             combo_image2 = end_to_end_lane_follower.follow_lane(frame_copy)
 
+            
             diff = end_to_end_lane_follower.curr_steering_angle - hand_coded_lane_follower.curr_steering_angle;
-            logging.info("desired=%3d, model=%3d, diff=%3d" %
-                          (hand_coded_lane_follower.curr_steering_angle,
-                          end_to_end_lane_follower.curr_steering_angle,
-                          diff))
+            logging.info("model=%3d" %
+                          (end_to_end_lane_follower.curr_steering_angle,
+                          ))
             video_overlay.write(combo_image2)
-            cv2.imshow("Hand Coded", combo_image1)
+            
+            #cv2.imshow("Hand Coded", combo_image1)
             cv2.imshow("Deep Learning", combo_image2)
 
             i += 1
@@ -136,8 +159,13 @@ def test_video(video_file):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    test_video('/media/pi/Storage/AI/DeepPiCar/models/lane_navigation/data/images/video01')
+    #test_video('/media/pi/Storage/AI/RC_Car_CNN/training_video/538/video_358')
     #test_video('/media/pi/Storage/AI/DeepPiCar/models/lane_navigation/data/images/video01')
-    #test_photo('/home/pi/DeepPiCar/models/lane_navigation/data/images/video01_100_084.png')
-    # test_photo(sys.argv[1])
-    # test_video(sys.argv[1])
+    #test_photo('/media/pi/Storage/AI/RC_Car_CNN/training_video/538/video538_625_100.png')
+    #test_photo(sys.argv[0])
+    test_video(sys.argv[0])
+
+
+          
+               
+
