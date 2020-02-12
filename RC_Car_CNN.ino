@@ -19,6 +19,8 @@
 #include <RF24.h>
 #include <Servo.h>
 Servo myservo;
+int servo_data;
+String servo_string;
 Servo trottle;
 /*-----( Declare Constants and Pin Numbers )-----*/
 #define CE_PIN 8
@@ -287,6 +289,17 @@ else if (yAxis > 560 || buttonDown==0) {
 
   else if (autonomous == 1)
  {
+
+if(Serial.available()){
+        servo_string = Serial.readStringUntil('\n');
+ 
+        Serial.println("Serial imput is: " + servo_string);
+
+     int servo_data = servo_string.toInt();
+
+
+
+
 // Y-axis used for forward and backward control  
  if (yAxis < 450 || buttonUp==0) {
     // Motors backward
@@ -323,13 +336,14 @@ else if (yAxis > 560 || buttonDown==0) {
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed bw: ")); display.println(speed-speedb);
-  display.print(F("servo angle: ")); display.println(servo_angle);
+  display.print(F("servo angle: ")); display.println(servo_data);
   
   display.display();
 
 
-  servo_angle =   Serial.read();
-  myservo.write(servo_angle);
+  myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
+  delay(5);                       // waits 15ms for the servo to reach the position
+  Serial.write(servo_data);
 
 
   }
@@ -370,13 +384,13 @@ else if (yAxis > 560 || buttonDown==0) {
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed fw: ")); display.println(speed+speedb);
-  display.print(F("servo angle: ")); display.println(servo_angle);
+  display.print(F("servo angle: ")); display.println(servo_data);
   display.display();
 
  
-  servo_angle = map(xAxis, 0, 1023, 120, 60);
-  myservo.write(servo_angle); 
-  Serial.println(servo_angle);
+  myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
+  delay(5);                       // waits 15ms for the servo to reach the position
+  Serial.write(servo_data);
 
   }
   // If joystick stays in middle the motors are not moving
@@ -407,14 +421,17 @@ else if (yAxis > 560 || buttonDown==0) {
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
   display.print(F("Speed stop: ")); display.println(speed);
-  display.print(F("servo angle: ")); display.println(servo_angle);
+  display.print(F("servo angle: ")); display.println(servo_data);
   display.display();
 
 
-  servo_angle = map(xAxis, 0, 1023, 120, 60);
-  myservo.write(servo_angle); 
-  Serial.println(servo_angle);
+  myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
+  delay(5);                       // waits 15ms for the servo to reach the position
+  Serial.write(servo_data);
  }
+
+}
+
    }
    /*
    // X-axis used for left and right control
@@ -425,8 +442,7 @@ else if (yAxis > 560 || buttonDown==0) {
    Serial.println(servo_angle);
    */
   }
-
-  
+ 
   /*
 else if(!radio.available())
    {
@@ -450,9 +466,7 @@ else if(!radio.available())
   
     trottle.write(speed); // set car speed  
   }
-  */
-
-
+  *//*
       Serial.print(" X = ");
       Serial.print(xAxis);
       Serial.print(" Y = ");  
@@ -468,6 +482,7 @@ else if(!radio.available())
       Serial.print(" Left = ");
       Serial.print(joystick[5]);
       Serial.print(" Autonomous = ");
-      Serial.println(autonomous);  
+      Serial.println(autonomous);
+      */  
 
 }
