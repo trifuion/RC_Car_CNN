@@ -75,7 +75,6 @@ int autonomous =1;
 void setup()
 {
   Serial.begin(9600);
-  //Serial.println("Nrf24L01 Receiver Starting");
   myservo.attach(9);
   trottle.attach(10);
   radio.begin();
@@ -144,13 +143,15 @@ void loop()
 
 
 
- if (buttonRight==0 & buttonLeft==0)
+ if (buttonRight==0)
 
  {
-  autonomous = autonomous*(-1);
-  delay(200);
+  autonomous = 1;
  }
-
+ else if (buttonLeft==0)
+ {
+  autonomous = -1;
+ }
 
 
 if  (autonomous == -1)
@@ -287,17 +288,24 @@ else if (yAxis > 560 || buttonDown==0) {
   }
   }  
 
+
+
+
+
+
   else if (autonomous == 1)
  {
 
 if(Serial.available()){
-        servo_string = Serial.readStringUntil('\n');
+
+        //servo_string = Serial.readStringUntil('\n');
+        servo_string = Serial.read();
+
+        //Serial.println("Serial input is: " + servo_string);
  
-        Serial.println("Serial imput is: " + servo_string);
+        int servo_data = servo_string.toInt();
 
-     int servo_data = servo_string.toInt();
-
-
+        //Serial.println("Serial input is: " + servo_data);
 
 
 // Y-axis used for forward and backward control  
@@ -343,8 +351,7 @@ if(Serial.available()){
 
   myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
   delay(5);                       // waits 15ms for the servo to reach the position
-  Serial.write(servo_data);
-
+  
 
   }
 else if (yAxis > 560 || buttonDown==0) {
@@ -390,7 +397,7 @@ else if (yAxis > 560 || buttonDown==0) {
  
   myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
   delay(5);                       // waits 15ms for the servo to reach the position
-  Serial.write(servo_data);
+
 
   }
   // If joystick stays in middle the motors are not moving
@@ -427,46 +434,16 @@ else if (yAxis > 560 || buttonDown==0) {
 
   myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
   delay(5);                       // waits 15ms for the servo to reach the position
-  Serial.write(servo_data);
+
  }
 
 }
 
-   }
-   /*
-   // X-axis used for left and right control
-   // Convert the declining X-axis readings from 0 to 1023 into increasing 0 to 255 value
-   // servo_angle = xAxis;
-   servo_angle = map(xAxis, 0, 1023, 105, 70);
-   myservo.write(servo_angle); 
-   Serial.println(servo_angle);
-   */
+}
+
   }
  
-  /*
-else if(!radio.available())
-   {
-    speed=90;
-    Serial.print(" Speed zero = ");  
-    Serial.print(speed);
-    Serial.print("    ");
-    Serial.println("!!! Signal lost !!! ");    
- 
-    trottle.write(speed); // set car speed
-    }  
-*/
-/*
-    else
-  {
-    speed=90;
-    Serial.print(" Speed zero = ");  
-    Serial.print(speed);
-    Serial.print("    ");
-    Serial.print("!!! Signal lost !!! ");    
-  
-    trottle.write(speed); // set car speed  
-  }
-  *//*
+ /*
       Serial.print(" X = ");
       Serial.print(xAxis);
       Serial.print(" Y = ");  
@@ -483,6 +460,6 @@ else if(!radio.available())
       Serial.print(joystick[5]);
       Serial.print(" Autonomous = ");
       Serial.println(autonomous);
-      */  
+  */    
 
 }

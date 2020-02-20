@@ -8,16 +8,20 @@ from hand_coded_lane_follower import HandCodedLaneFollower
 
 import time
 import serial
+import struct
 
 ser = serial.Serial(
               
-               port='/dev/ttyACM0',
+               port='/dev/ttyACM1',
                baudrate = 9600,
                parity=serial.PARITY_NONE,
                stopbits=serial.STOPBITS_ONE,
                bytesize=serial.EIGHTBITS,
-               timeout=1
+               timeout=.1
            )
+
+# let it initialize
+time.sleep(2)
 
 _SHOW_IMAGE = True
 
@@ -41,7 +45,7 @@ class EndToEndLaneFollower(object):
 
         self.curr_steering_angle = self.compute_steering_angle(frame)
         logging.debug("curr_steering_angle = %d" % self.curr_steering_angle)
-
+        
         if self.car is not None:
             self.car.front_wheels.turn(self.curr_steering_angle)
         final_frame = display_heading_line(frame, self.curr_steering_angle)
@@ -58,8 +62,9 @@ class EndToEndLaneFollower(object):
 
         logging.debug('new steering angle: %s' % steering_angle)
         return int(steering_angle + 0.5) # round the nearest integer
-        ser.write('Write counter: %d \n'%(steering_angle + 0.5))
-
+        
+        
+        
 
 def img_preprocess(image):
     height, _, _ = image.shape
@@ -136,12 +141,13 @@ def test_video(video_file):
             logging.info('Frame %s' % i)
             #combo_image1 = hand_coded_lane_follower.follow_lane(frame)
             combo_image2 = end_to_end_lane_follower.follow_lane(frame_copy)
-
+            angle = end_to_end_lane_follower.curr_steering_angle
             
-            diff = end_to_end_lane_follower.curr_steering_angle - hand_coded_lane_follower.curr_steering_angle;
-            logging.info("model=%3d" %
-                          (end_to_end_lane_follower.curr_steering_angle,
-                          ))
+            #diff = end_to_end_lane_follower.curr_steering_angle - hand_coded_lane_follower.curr_steering_angle;
+            logging.info("model = %3d" %(angle))
+            ser.write(struct.pack('>B',angle))
+            #ser.write(struct.pack('>B',end_to_end_lane_follower.curr_steering_angle))
+            
             video_overlay.write(combo_image2)
             
             #cv2.imshow("Hand Coded", combo_image1)
