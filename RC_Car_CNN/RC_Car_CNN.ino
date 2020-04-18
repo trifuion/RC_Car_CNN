@@ -77,8 +77,12 @@ void setup()
   Serial.begin(9600);
   myservo.attach(9);
   trottle.attach(10);
+  
   radio.begin();
   radio.setPALevel(RF24_PA_MIN);
+  radio.setAutoAck(false);
+
+  
   radio.openReadingPipe(1,pipe);
   radio.startListening();
 
@@ -442,6 +446,24 @@ else if (yAxis > 560 || buttonDown==0) {
 }
 
   }
+
+  else{
+    
+  Serial.println("RF communication not working");
+  
+  display.clearDisplay();
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+
+  display.setTextSize(2);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.println(F("RF comm "));
+  display.println(F("-------"));
+  display.println(F("FAILURE"));
+
+  display.display();
+    }
  
  /*
       Serial.print(" X = ");
