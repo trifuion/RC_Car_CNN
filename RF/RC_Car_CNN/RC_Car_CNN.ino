@@ -70,16 +70,19 @@ int buttonDown;
 int buttonLeft;
 int servo_angle;
 int set_speed = 0;
-int autonomous =-1;
-int car_speed;
+int autonomous =1;
 
 void setup()
 {
   Serial.begin(9600);
   myservo.attach(9);
   trottle.attach(10);
+  
   radio.begin();
   radio.setPALevel(RF24_PA_MIN);
+  radio.setAutoAck(false);
+
+  
   radio.openReadingPipe(1,pipe);
   radio.startListening();
 
@@ -158,12 +161,12 @@ void loop()
 if  (autonomous == -1)
  {
 // Y-axis used for forward and backward control  
- if (yAxis < 355 || buttonUp==0) {
+ if (yAxis < 450 || buttonUp==0) {
     // Motors backward
     // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed 
     
-    if (yAxis < 350)
-    {speed  = map(yAxis, 350, 0, 85, 50);}
+    if (yAxis < 450)
+    {speed  = map(yAxis, 450, 0, 82, 76);}
     else
     {speed=82;}
 
@@ -176,8 +179,7 @@ if  (autonomous == -1)
     Serial.print(speed-speedb);
     Serial.print("    ");  
 */    
-  car_speed=speed-speedb;
-  trottle.write(car_speed); // set car speed
+  trottle.write(speed+speedb); // set car speed
 
     display.clearDisplay();
     display.setTextSize(1);             // Normal 1:1 pixel scale
@@ -193,7 +195,7 @@ if  (autonomous == -1)
   display.println(F("TRAINING MODE"));
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
-  display.print(F("Speed bw: ")); display.println(car_speed);
+  display.print(F("Speed bw: ")); display.println(speed-speedb);
   display.print(F("servo angle: ")); display.println(servo_angle);
   
   display.display();
@@ -204,11 +206,13 @@ if  (autonomous == -1)
   Serial.write(servo_angle);
 
   }
-else if (yAxis > 360 || buttonDown==0) {
+else if (yAxis > 560 || buttonDown==0) {
     // Motors forward
-
-    if (yAxis > 360)
-    {speed  = map(yAxis, 360, 718, 95, 120);}
+    // Convert the increasing Y-axis readings for going forward from 550 to 1023 into 0 to 255 value for the PWM signal for increasing the motor speed
+    //  speed  = map(yAxis, 510, 1023, 30, 220);
+    
+    if (yAxis > 560)
+    {speed  = map(yAxis, 560, 1023, 100, 103);}
     else
     {speed=100;}
         
@@ -216,9 +220,12 @@ else if (yAxis > 360 || buttonDown==0) {
     {speedb=set_speed;}
     else
     {speedb=0;}
-
-  car_speed=speed+speedb;  
-  trottle.write(car_speed); // set car speed
+/*   
+    Serial.print(" Speed forward = ");  
+    Serial.print(speed+speedb);
+    Serial.print("    ");   
+*/   
+  trottle.write(speed+speedb); // set car speed
 
   display.clearDisplay();
 
@@ -235,22 +242,26 @@ else if (yAxis > 360 || buttonDown==0) {
   display.println(F("TRAINING MODE"));
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
-  display.print(F("Speed fw: ")); display.println(car_speed);
+  display.print(F("Speed fw: ")); display.println(speed+speedb);
   display.print(F("servo angle: ")); display.println(servo_angle);
   display.display();
 
  
   servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
-  //Serial.println(servo_angle);
+  Serial.println(servo_angle);
 
   }
-  
   // If joystick stays in middle the motors are not moving
   else {
-  
-  speed=90;
-  car_speed=speed-speedb;
+    
+
+    speed=90;
+/*    
+    Serial.print(" Speed zero = ");  
+    Serial.print(speed);
+    Serial.print("    ");  
+*/	
   trottle.write(speed); // set car speed
 
   display.clearDisplay();
@@ -268,14 +279,16 @@ else if (yAxis > 360 || buttonDown==0) {
   display.println(F("TRAINING MODE"));
   display.println();
   display.print(F("set Speed: ")); display.println(set_speed);
-  display.print(F("Speed stop: ")); display.println(car_speed);
+  display.print(F("Speed stop: ")); display.println(speed);
   display.print(F("servo angle: ")); display.println(servo_angle);
   display.display();
 
 
   servo_angle = map(xAxis, 0, 1023, 120, 60);
   myservo.write(servo_angle); 
-  //Serial.println(servo_angle);
+  Serial.println(servo_angle);
+
+
   }
   }  
 
@@ -300,12 +313,12 @@ if(Serial.available()){
 
 
 // Y-axis used for forward and backward control  
- if (yAxis < 340 || buttonUp==0) {
+ if (yAxis < 450 || buttonUp==0) {
     // Motors backward
     // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed 
     
-    if (yAxis < 340)
-    {speed  = map(yAxis, 340, 0, 82, 76);}
+    if (yAxis < 450)
+    {speed  = map(yAxis, 450, 0, 82, 76);}
     else
     {speed=82;}
 
@@ -313,7 +326,11 @@ if(Serial.available()){
     {speedb=-set_speed;}
     else
     {speedb=0;}
-
+/*
+    Serial.print(" Speed reverse = ");  
+    Serial.print(speed-speedb);
+    Serial.print("    ");  
+*/    
   trottle.write(speed+speedb); // set car speed
 
     display.clearDisplay();
@@ -382,15 +399,9 @@ else if (yAxis > 560 || buttonDown==0) {
   display.display();
 
  
-<<<<<<< HEAD
-  servo_angle = map(xAxis, 0, 1023, 120, 60);
-  myservo.write(servo_angle); 
-  //Serial.println(servo_angle);
-=======
   myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
   delay(5);                       // waits 15ms for the servo to reach the position
 
->>>>>>> master
 
   }
   // If joystick stays in middle the motors are not moving
@@ -425,22 +436,33 @@ else if (yAxis > 560 || buttonDown==0) {
   display.display();
 
 
-<<<<<<< HEAD
-  servo_angle = map(xAxis, 0, 1023, 120, 60);
-  myservo.write(servo_angle); 
-  //Serial.println(servo_angle);
-=======
   myservo.write(servo_data);              // tell servo to go to position in variable 'pos'
   delay(5);                       // waits 15ms for the servo to reach the position
 
->>>>>>> master
  }
 
 }
-
 }
 
   }
+
+  else{
+    
+  Serial.println("RF communication not working");
+  
+  display.clearDisplay();
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+
+  display.setTextSize(2);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.println(F("RF comm "));
+  display.println(F("-------"));
+  display.println(F("FAILURE"));
+
+  display.display();
+    }
  
  /*
       Serial.print(" X = ");
@@ -448,9 +470,7 @@ else if (yAxis > 560 || buttonDown==0) {
       Serial.print(" Y = ");  
       Serial.print(yAxis);
       Serial.print(" Speed = ");  
-      Serial.print(car_speed);
-      Serial.print(" Steering = ");  
-      Serial.print(servo_angle);
+      Serial.print(speed);
       Serial.print(" Up = ");
       Serial.print(joystick[2]);
       Serial.print(" Right = ");  

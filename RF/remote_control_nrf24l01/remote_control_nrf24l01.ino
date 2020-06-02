@@ -1,0 +1,115 @@
+/* JoyStick module transceiver code
+ - CONNECTIONS: nRF24L01 Modules See:
+   1 - GND
+   2 - VCC 3.3V !!! NOT 5V
+   3 - CE to Arduino pin 9
+   4 - CSN to Arduino pin 10
+   5 - SCK to Arduino pin 13
+   6 - MOSI to Arduino pin 11
+   7 - MISO to Arduino pin 12
+   8 - UNUSED
+   
+   Default Button Pins: 
+   Up     - pin 2
+   Right  - pin 3
+   Down   - pin 4
+   Left   - pin 5
+   - 
+   Analog Joystick module
+   GND    to Arduino GND
+   VCC    to Arduino +5V
+   X Pot  to Arduino A0
+   Y Pot  to Arduino A1
+/*-----( Import needed libraries )-----*/
+
+#include <SPI.h>
+#include "nRF24L01.h"
+#include "RF24.h"
+
+#define CE_PIN   9
+#define CSN_PIN 10
+#define xAxis 14     // A0 for Arduino UNO
+#define yAxis 15     // A1 for Arduino UNO
+
+// NOTE: the "LL" at the end of the constant is "LongLong" type
+const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
+
+/*-----( Declare objects )-----*/
+RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
+
+/*-----( Declare Variables )-----*/
+int joystick[8];  // 6 element array holding Joystick reading and 4 buttons
+
+int buttonUp    = 2;
+int buttonRight = 3;
+int buttonDown  = 4;
+int buttonLeft  = 5;
+int const E_BTN = 6;
+int const F_BTN = 7;
+//int K_BTN = 8;
+
+
+void setup() {
+
+  Serial.begin(9600);
+  radio.begin();
+  radio.setPALevel(RF24_PA_MIN);
+  radio.setAutoAck(false);
+  
+  radio.openWritingPipe(pipe);
+  radio.stopListening();
+  
+  //declare pinMode for all buttons and initial state
+  pinMode(buttonUp,INPUT_PULLUP);
+  pinMode(buttonRight,INPUT_PULLUP);
+  pinMode(buttonDown,INPUT_PULLUP);
+  pinMode(buttonLeft,INPUT_PULLUP);
+  pinMode(E_BTN,INPUT_PULLUP);
+  pinMode(E_BTN,INPUT_PULLUP);
+  //pinMode(K_BTN,INPUT_PULLUP);
+  
+  digitalWrite(buttonUp,LOW);
+  digitalWrite(buttonRight,LOW);
+  digitalWrite(buttonDown,LOW);
+  digitalWrite(buttonLeft,LOW);
+  digitalWrite(E_BTN,LOW);
+  digitalWrite(F_BTN,LOW);
+  //digitalWrite(K_BTN,LOW);
+
+}
+
+void loop() {
+  
+  joystick[0] = analogRead(xAxis);
+  joystick[1] = analogRead(yAxis);
+  joystick[2] = digitalRead(buttonUp);
+  joystick[3] = digitalRead(buttonRight);
+  joystick[4] = digitalRead(buttonDown);
+  joystick[5] = digitalRead(buttonLeft);
+  joystick[6] = digitalRead(E_BTN);
+  joystick[7] = digitalRead(F_BTN);
+  //joystick[8] = digitalRead(K_BTN);
+  
+  radio.write( joystick, sizeof(joystick) );
+  delay(20);
+
+      Serial.print("X = ");
+      Serial.print(analogRead(xAxis));
+      Serial.print(" Y = ");  
+      Serial.print(analogRead(yAxis));
+      Serial.print(" Up = "); 
+      Serial.print(digitalRead(buttonUp));
+      Serial.print(" Right = "); 
+      Serial.print(digitalRead(buttonRight));
+      Serial.print(" Down = "); 
+      Serial.print(digitalRead(buttonDown));
+      Serial.print(" Left = "); 
+      Serial.print(digitalRead(buttonLeft));      
+      Serial.print(" E_BTN = "); 
+      Serial.print(digitalRead(E_BTN));
+      Serial.print(" F_BTN = "); 
+      Serial.println(digitalRead(F_BTN));
+      //Serial.print(" K_BTN = "); 
+      //Serial.println(digitalRead(K_BTN));
+      
+}
